@@ -1,0 +1,84 @@
+ public function __construct()
+ $this->banners = Banner::where('status', 1)->orderBy('sort', 'desc')->orderBy('id', 'desc')->get();
+ $this->news = (new CmsNews)->getItemsNews($limit = 8, $opt = 'paginate');
+ $this->notice = (new CmsPage)->where('uniquekey', 'notice')->where('status', 1)->first();
+ $this->brands = ShopBrand::getBrands();
+ $this->categories = ShopCategory::getCategories(0);
+ $this->configs = Config::pluck('value', 'key')->all();
+ View::share('products_hot', (new ShopProduct)->getProducts($type = 1, $limit = 4, $opt = 'random'));
+ View::share('logo', Banner::where('status', 1)->where('type', 0)->orderBy('sort', 'desc')->orderBy('id', 'desc')->first());
+ public function index(Request $request)
+ return view($this->theme . '.shop_home', array( 'title' => $this->configs['site_title'], 'title_h1' => 'Sản phẩm mới', 'description' => $this->configs['site_description'], 'keyword' => $this->configs['site_keyword'], 'banners_top' => Banner::where('status', 1)->where('type', 1)->orderBy('sort', 'desc')->orderBy('id', 'desc')->get(), 'banners_left' => Banner::where('status', 1)->where('type', 2)->orderBy('sort', 'desc')->orderBy('id', 'desc')->first(), 'banners_right' => Banner::where('status', 1)->where('type', 3)->orderBy('sort', 'desc')->orderBy('id', 'desc')->limit(2)->get(), 'banners' => Banner::where('status', 1)->orderBy('sort', 'desc')->orderBy('id', 'desc')->get(), 'notice' => $this->getPage('notice'), 'products_new' => (new ShopProduct)->getProducts($type = null, $limit = 20, $opt = null), 'home_page' => 1, 'blogs' => (new CmsNews)->getItemsNews($limit = 6), ) );
+ public function productToCategory($name, $id)
+ $category = (new ShopCategory)->find($id);
+ public function allProducts()
+ $products = ShopProduct::where('status', 1) ->orderBy('id', 'desc')->paginate(20);
+ public function productDetail($name, $id)
+ $product = ShopProduct::find($id);
+ return view($this->theme . '.shop_product_detail', array( 'title_h1' => $product->name, 'title' => $product->name, 'description' => $product->description, 'keyword' => $this->configs['site_keyword'], 'product' => $product, 'productsToCategory' => (new ShopCategory)->getProductsToCategory($id = $product->category_id, $limit = 8, $opt = 'random'), 'og_image' => url('/') . '/documents/website/' . $product->image, ) );
+ public function profile()
+ $orders = ShopOrder::with('orderTotal')->where('user_id', $id)->orderBy('id', 'desc')->get();
+ public function product_brands($name, $id, $category = null)
+ $brand = ShopBrand::find($id);
+ return view($this->theme . '.shop_products', array( 'title' => $brand->name, 'description' => '', 'page' => 'products', 'products' => ShopProduct::where('status', 1) ->orderBy('id', 'desc')->where('brand', $id)->paginate(9), ) );
+ public function logout()
+ public function removeItem($id = null)
+ public function removeItemFromWl($id = null)
+ public function storecart(Request $request)
+ $objects[] = (new ShopOrderTotal)->getShipping();
+ $objects[] = (new ShopOrderTotal)->getDiscount();
+ $objects[] = (new ShopOrderTotal)->getReceived();
+ $dataTotal = ShopOrderTotal::processDataTotal($objects);
+ $subtotal = (new ShopOrderTotal)->sumValueTotal('subtotal', $dataTotal);
+ $shipping = (new ShopOrderTotal)->sumValueTotal('shipping', $dataTotal);
+ $discount = (new ShopOrderTotal)->sumValueTotal('discount', $dataTotal);
+ $received = (new ShopOrderTotal)->sumValueTotal('received', $dataTotal);
+ $total = (new ShopOrderTotal)->sumValueTotal('total', $dataTotal);
+ $orderId = ShopOrder::insertGetId($arrOrder);
+ ShopOrderTotal::insertTotal($dataTotal, $orderId);
+ $product = ShopProduct::find($value->id);
+ ShopOrderDetail::insert($arrDetail);
+ ShopOrderHistory::insert($dataHistory);
+ $data = ShopOrder::with('details')->find($orderId)->toArray();
+ public function addToCart(Request $request)
+ $product = ShopProduct::find($id);
+ $product = ShopProduct::find($item->id);
+ public function updateToCart(Request $request)
+ $product = ShopProduct::find($id);
+ public function cart(Request $request)
+ $product = ShopProduct::find($product_id);
+ Cart::add( array( 'id' => $product_id, 'name' => $product->name, 'qty' => $qty, 'price' => (new ShopProduct)->getPrice($product_id, $opt_sku), 'options' => $options, ) );
+ $objects[] = (new ShopOrderTotal)->getShipping();
+ $objects[] = (new ShopOrderTotal)->getDiscount();
+ $objects[] = (new ShopOrderTotal)->getReceived();
+ return view($this->theme . '.shop_cart', array( 'title_h1' => 'Giỏ hàng', 'title' => 'Giỏ hàng' . ' - ' . $this->configs['site_title'], 'description' => '', 'keyword' => '', 'cart' => Cart::content(), 'dataTotal' => ShopOrderTotal::processDataTotal($objects), 'hasCoupon' => $hasCoupon, ) );
+ public function wishlist(Request $request)
+ public function product_type(Request $request)
+ $product_type = ShopProductType::where('opt_sku', $data['sku'])->first();
+ public function clear_cart()
+ public function usePromotion(Request $request)
+ $objects[] = (new ShopOrderTotal)->getShipping();
+ $objects[] = (new ShopOrderTotal)->getDiscount();
+ $objects[] = (new ShopOrderTotal)->getReceived();
+ $dataTotal = ShopOrderTotal::processDataTotal($objects);
+ $objects[] = (new ShopOrderTotal)->getShipping();
+ $objects[] = (new ShopOrderTotal)->getDiscount();
+ $objects[] = (new ShopOrderTotal)->getReceived();
+ $dataTotal = ShopOrderTotal::processDataTotal($objects);
+ public function search(Request $request)
+ return view($this->theme . '.shop_products', array( 'title' => 'Tìm kiếm: ' . $keyword, 'title_h1' => 'Kết quả từ khóa: <span style="color:red;font-style:italic">' . $keyword . '</span>', 'description' => '', 'keyword' => $this->configs['site_keyword'], 'products' => ShopProduct::resultSearch($keyword), 'products_left' => (new ShopProduct)->getProducts($type = null, $limit = 2, $opt = 'random'), ));
+ public function pages($key = null)
+ return view($this->theme . '.cms_page', array( 'title' => $page->title, 'title_h1' => $page->title, 'description' => '', 'keyword' => $this->configs['site_keyword'], 'page' => $page, 'products_left' => (new ShopProduct)->getProducts($type = null, $limit = 2, $opt = 'random'), ));
+ public function login()
+ public function forgot()
+ public function getPage($key = null)
+ return CmsPage::where('uniquekey', $key)->where('status', 1)->first();
+ public function updatePromotion($code, $action = "apply")
+ public function getContact()
+ public function postContact(Request $request)
+ public function news()
+ public function news_detail($name, $id)
+ $news_currently = CmsNews::find($id);
+ return view($this->theme . '.cms_news_detail', array( 'title' => $title, 'news_currently' => $news_currently, 'description' => $this->configs['site_description'], 'keyword' => $this->configs['site_keyword'], 'blogs' => (new CmsNews)->getItemsNews($limit = 4), 'og_image' => url('/') . '/documents/website/' . $news_currently->image, ) );
+ $special = (new ShopSpecialPrice) ->where('product_id', $id) ->where('status', 1) ->where(function ($query) { $query->where('date_end', '>=', date("Y-m-d")) ->orWhereNull('date_end');
+ if (ShopCategory::where('lala',3)->get()) ;
