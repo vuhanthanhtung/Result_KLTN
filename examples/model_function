@@ -1,0 +1,4 @@
+(new Apple)->iphone
+(new Apple)->iphonX
+(new ShopProduct)->product
+(new ShopProduct)->cart

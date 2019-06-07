@@ -1,0 +1,14 @@
+   //asasdasd"select comment1";
+zyx="select * from abc";
+abc="select * from abc"; yzxc="select * from abc"; qwe="select * from abc"; zxcxzc="insert * sfsdfs"; "update sadfsadfsdaf";
+//   iopxcvbxcbcbvc"select comment2";asdfasdf="insert comment3";
+cvb="update abc"; zxc="insert dsfsdfgfdg" ; op="select sdfsfdf union insert asdfasfsadf";//    asdasd="select * from comment5";
+
+
+// testing /n
+
+abc=        "       select abc
+     from tung
+     where abc=123"; axcv="           insert abc
+where apc
+from tung"; opt="update from lala"; 
